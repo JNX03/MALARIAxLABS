@@ -15,9 +15,12 @@ export const metadata: Metadata = {
   keywords: "malaria, detection, AI, healthcare, diagnosis, blood smear, microscopy",
   authors: [{ name: "MalariaX" }],
   icons: {
-    icon: "/favicon.png",
-    shortcut: "/favicon.png",
-    apple: "/favicon.png",
+    icon: [
+      { url: "/favicon.webp", type: "image/webp" },
+      { url: "/favicon.png", type: "image/png" }
+    ],
+    shortcut: "/favicon.webp",
+    apple: "/favicon.webp",
   },
   openGraph: {
     title: "MalariaX - AI-Powered Malaria Detection",
@@ -35,6 +38,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="dns-prefetch" href="//fonts.googleapis.com" />
+      </head>
       <body className={`${inter.className} antialiased`}>
         <ThemeProvider>
           <I18nProvider>

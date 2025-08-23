@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect, useTransition } from "react"
+import { useState, useEffect, useTransition, memo } from "react"
 import Link from "next/link"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -34,7 +34,7 @@ import { useTranslation } from "@/lib/i18n"
 import { storage } from "@/lib/storage"
 import Image from "next/image"
 
-export default function Navbar() {
+function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [mounted, setMounted] = useState(false)
@@ -405,3 +405,5 @@ export default function Navbar() {
     </nav>
   )
 }
+
+export default memo(Navbar)

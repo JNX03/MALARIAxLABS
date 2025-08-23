@@ -1,3 +1,4 @@
+import React from "react"
 import { Loader2 } from "lucide-react"
 import { cn } from "@/lib/utils"
 
@@ -34,6 +35,27 @@ export function CardLoading() {
   return (
     <div className="p-8">
       <Loading size="md" />
+    </div>
+  )
+}
+
+interface SkeletonProps extends React.HTMLAttributes<HTMLDivElement> {}
+
+export function Skeleton({ className, ...props }: SkeletonProps) {
+  return (
+    <div
+      className={cn("animate-pulse rounded-md bg-muted", className)}
+      {...props}
+    />
+  )
+}
+
+export function CardSkeleton() {
+  return (
+    <div className="p-6 border rounded-lg space-y-4">
+      <Skeleton className="h-4 w-1/4" />
+      <Skeleton className="h-8 w-1/2" />
+      <Skeleton className="h-4 w-3/4" />
     </div>
   )
 }

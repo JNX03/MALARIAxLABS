@@ -35,7 +35,11 @@ import {
 import { storage } from "@/lib/storage"
 import { useApp } from "@/contexts/app-context"
 import { useTranslation } from "@/lib/i18n"
-import Navbar from "@/components/navbar-new"
+import dynamic from "next/dynamic"
+
+const Navbar = dynamic(() => import("@/components/navbar-new"), {
+  ssr: true,
+})
 
 export default function HomePage() {
   const router = useRouter()

@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import dynamic from "next/dynamic"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
@@ -21,6 +22,11 @@ import {
 import Link from "next/link"
 import { storage, type AnalysisResult, type DashboardStats } from "@/lib/storage"
 import { useTranslation } from "@/lib/i18n"
+
+const LazyChart = dynamic(() => import("recharts").then(mod => ({ default: mod.LineChart })), { 
+  ssr: false,
+  loading: () => <div className="h-64 bg-muted animate-pulse rounded" />
+})
 
 export default function DashboardPage() {
   const [recentAnalyses, setRecentAnalyses] = useState<AnalysisResult[]>([])
