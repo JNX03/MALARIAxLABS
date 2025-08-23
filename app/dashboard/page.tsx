@@ -43,10 +43,22 @@ import {
   BarChart3,
   LogOut,
   User,
-  Trash2
+  Trash2,
+  MapPin
 } from "lucide-react"
 import Link from "next/link"
 import { storage, type AnalysisResult, type DashboardStats } from "@/lib/storage"
+import dynamic from "next/dynamic"
+
+// Dynamically import the map to avoid SSR issues
+const MalariaMap = dynamic(() => import("@/components/malaria-map"), {
+  ssr: false,
+  loading: () => (
+    <div className="flex items-center justify-center p-8">
+      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+    </div>
+  )
+})
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("analyze")
@@ -258,8 +270,9 @@ export default function Dashboard() {
 
         {/* Main Content Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="analyze">New Analysis</TabsTrigger>
+            <TabsTrigger value="map">Map View</TabsTrigger>
             <TabsTrigger value="history">History</TabsTrigger>
             <TabsTrigger value="insights">Insights</TabsTrigger>
           </TabsList>
@@ -392,6 +405,11 @@ export default function Dashboard() {
                 </Card>
               </div>
             </div>
+          </TabsContent>
+
+          {/* Map View Tab */}
+          <TabsContent value="map" className="space-y-4">
+            <MalariaMap />
           </TabsContent>
 
           {/* History Tab */}

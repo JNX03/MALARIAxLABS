@@ -82,12 +82,16 @@ class LocalStorageService {
     }
 
     this.setCurrentUser(user);
+    // Set auth cookie for middleware
+    document.cookie = `malaria_auth=true; path=/; max-age=${60 * 60 * 24 * 7}`; // 7 days
     return user;
   }
 
   signOut(): void {
     if (!this.isClient()) return;
     localStorage.removeItem(this.KEYS.CURRENT_USER);
+    // Clear auth cookie
+    document.cookie = 'malaria_auth=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
   }
 
   getCurrentUser(): User | null {
