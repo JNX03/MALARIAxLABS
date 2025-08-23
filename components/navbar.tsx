@@ -7,10 +7,10 @@ export default function Navbar() {
     <header className="sticky top-0 z-50 w-full border-b border-border/40 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 max-w-screen-2xl items-center">
         <Link href="/" className="mr-6 flex items-center space-x-2">
-          <span className="font-bold">MALARIA RURAL LABS</span>
+          <span className="font-bold text-foreground">MALARIA RURAL LABS</span>
         </Link>
         <nav className="flex flex-1 items-center space-x-6 text-sm font-medium">
-          <Link href="#features" className="transition-colors hover:text-primary">
+          <Link href="#features" className="text-foreground transition-colors hover:text-primary">
             Features
           </Link>
         </nav>

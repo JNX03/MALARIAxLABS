@@ -35,19 +35,19 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background to-muted px-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-background to-muted/30 px-4 py-8">
       <div className="w-full max-w-md">
-        <Card className="border-2">
+        <Card className="border border-border/40 shadow-lg backdrop-blur-sm bg-background/95">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">Welcome Back</CardTitle>
-            <CardDescription className="text-center">
+            <CardTitle className="text-2xl font-bold text-center text-foreground">Welcome Back</CardTitle>
+            <CardDescription className="text-center text-muted-foreground">
               Sign in to access your malaria analysis dashboard
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <Alert className="mb-4 border-blue-200 bg-blue-50 dark:bg-blue-950/20">
-              <Database className="h-4 w-4 text-blue-600" />
-              <AlertDescription className="text-blue-800 dark:text-blue-200">
+            <Alert className="mb-4 border-primary/20 bg-primary/5 dark:bg-primary/10 dark:border-primary/30">
+              <Database className="h-4 w-4 text-primary" />
+              <AlertDescription className="text-foreground/80">
                 Offline mode: All data stored locally on this device
               </AlertDescription>
             </Alert>

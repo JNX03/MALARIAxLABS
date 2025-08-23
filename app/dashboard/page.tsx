@@ -1,666 +1,289 @@
 "use client"
 
-import type React from "react"
-import { useState, useRef, useEffect } from "react"
-import { useRouter } from "next/navigation"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog"
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table"
 import { 
-  Loader2, 
-  Upload, 
-  AlertCircle, 
-  CheckCircle2, 
-  Camera,
   Activity,
   TrendingUp,
-  TrendingDown,
-  FileText,
-  Download,
   Microscope,
-  Bug,
+  CheckCircle2,
   Clock,
-  Calendar,
+  ArrowRight,
   BarChart3,
-  LogOut,
-  User,
-  Trash2,
-  MapPin
+  History,
+  MapPin,
+  Upload,
+  FileText,
+  Calendar
 } from "lucide-react"
 import Link from "next/link"
 import { storage, type AnalysisResult, type DashboardStats } from "@/lib/storage"
-import dynamic from "next/dynamic"
+import { useTranslation } from "@/lib/i18n"
 
-// Dynamically import the map to avoid SSR issues
-const MalariaMap = dynamic(() => import("@/components/malaria-map"), {
-  ssr: false,
-  loading: () => (
-    <div className="flex items-center justify-center p-8">
-      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-    </div>
-  )
-})
-
-export default function Dashboard() {
-  const [activeTab, setActiveTab] = useState("analyze")
-  const [selectedFile, setSelectedFile] = useState<File | null>(null)
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null)
-  const [isAnalyzing, setIsAnalyzing] = useState(false)
-  const [showResultDialog, setShowResultDialog] = useState(false)
-  const [currentResult, setCurrentResult] = useState<AnalysisResult | null>(null)
+export default function DashboardPage() {
   const [recentAnalyses, setRecentAnalyses] = useState<AnalysisResult[]>([])
   const [stats, setStats] = useState<DashboardStats | null>(null)
-  const [user, setUser] = useState(storage.getCurrentUser())
-  const fileInputRef = useRef<HTMLInputElement>(null)
-  const videoRef = useRef<HTMLVideoElement>(null)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const router = useRouter()
+  const { t } = useTranslation()
 
   useEffect(() => {
-    if (!user) {
-      router.push("/auth/login")
-      return
-    }
     loadDashboardData()
-  }, [user, router])
+  }, [])
 
   const loadDashboardData = () => {
-    setRecentAnalyses(storage.getRecentAnalyses(10))
+    setRecentAnalyses(storage.getRecentAnalyses(5))
     setStats(storage.getDashboardStats())
-  }
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0] || null
-    setSelectedFile(file)
-
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setPreviewUrl(reader.result as string)
-      }
-      reader.readAsDataURL(file)
-    } else {
-      setPreviewUrl(null)
-    }
-  }
-
-  const handleDragOver = (e: React.DragEvent) => {
-    e.preventDefault()
-  }
-
-  const handleDrop = (e: React.DragEvent) => {
-    e.preventDefault()
-    const file = e.dataTransfer.files?.[0] || null
-    setSelectedFile(file)
-
-    if (file) {
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setPreviewUrl(reader.result as string)
-      }
-      reader.readAsDataURL(file)
-    }
-  }
-
-  const triggerFileInput = () => {
-    fileInputRef.current?.click()
-  }
-
-  const handleAnalyze = async () => {
-    if (!selectedFile) return
-
-    setIsAnalyzing(true)
-
-    try {
-      // Simulate analysis with delay
-      await new Promise(resolve => setTimeout(resolve, 2000))
-      
-      const result = await storage.saveAnalysis(selectedFile)
-      setCurrentResult(result)
-      setShowResultDialog(true)
-      loadDashboardData()
-      
-      // Clear the form
-      setSelectedFile(null)
-      setPreviewUrl(null)
-      if (fileInputRef.current) {
-        fileInputRef.current.value = ""
-      }
-    } catch (error) {
-      console.error("Analysis failed:", error)
-    } finally {
-      setIsAnalyzing(false)
-    }
-  }
-
-  const handleLogout = () => {
-    storage.signOut()
-    router.push("/")
-  }
-
-  const handleExport = () => {
-    storage.exportAnalysesToCSV()
-  }
-
-  const handleDeleteAnalysis = (id: string) => {
-    if (confirm("Are you sure you want to delete this analysis?")) {
-      storage.deleteAnalysis(id)
-      loadDashboardData()
-    }
   }
 
   const getStatusColor = (status: string) => {
     switch (status) {
-      case 'positive': return 'text-red-600 bg-red-100'
-      case 'negative': return 'text-green-600 bg-green-100'
-      default: return 'text-yellow-600 bg-yellow-100'
+      case 'positive': return 'bg-red-50 text-red-700 border-red-200 dark:bg-red-950/20 dark:text-red-400 dark:border-red-800/30'
+      case 'negative': return 'bg-green-50 text-green-700 border-green-200 dark:bg-green-950/20 dark:text-green-400 dark:border-green-800/30'
+      default: return 'bg-yellow-50 text-yellow-700 border-yellow-200 dark:bg-yellow-950/20 dark:text-yellow-400 dark:border-yellow-800/30'
     }
   }
 
   const getStatusIcon = (status: string) => {
     switch (status) {
-      case 'positive': return <Bug className="h-4 w-4" />
+      case 'positive': return <Activity className="h-4 w-4" />
       case 'negative': return <CheckCircle2 className="h-4 w-4" />
-      default: return <AlertCircle className="h-4 w-4" />
+      default: return <Clock className="h-4 w-4" />
     }
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background to-muted">
-      {/* Navigation */}
-      <nav className="bg-background/95 backdrop-blur-md shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <Link href="/" className="flex items-center space-x-2">
-                <Microscope className="h-6 w-6 text-primary" />
-                <span className="text-xl font-bold">Malaria Detection Lab</span>
-              </Link>
+    <>
+      {/* Statistics Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-6 sm:mb-8">
+        <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-border/40">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">{t.dashboard.totalAnalyses}</CardTitle>
+            <div className="p-2 bg-primary/10 rounded-full">
+              <Activity className="h-4 w-4 text-primary" />
             </div>
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <User className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm font-medium">{user?.name}</span>
-              </div>
-              <Button onClick={handleLogout} variant="ghost" size="sm">
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
-              </Button>
-            </div>
-          </div>
-        </div>
-      </nav>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl sm:text-3xl font-bold text-foreground">{stats?.totalTests || 0}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              <span className="text-primary">+{stats?.testsThisMonth || 0}</span> this month
+            </p>
+          </CardContent>
+        </Card>
 
-      <div className="container mx-auto py-8 px-4 max-w-7xl">
-        {/* Statistics Cards */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Total Analyses</CardTitle>
-              <Activity className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">{stats?.totalTests || 0}</div>
-              <p className="text-xs text-muted-foreground">
-                {stats?.testsThisMonth || 0} this month
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Positive Cases</CardTitle>
+        <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-border/40">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">{t.dashboard.positiveCases}</CardTitle>
+            <div className="p-2 bg-red-100 dark:bg-red-900/30 rounded-full">
               <TrendingUp className="h-4 w-4 text-red-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-red-600">{stats?.positiveTests || 0}</div>
-              <p className="text-xs text-muted-foreground">
-                {stats?.totalTests ? ((stats.positiveTests / stats.totalTests) * 100).toFixed(1) : 0}% of total
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Negative Cases</CardTitle>
-              <TrendingDown className="h-4 w-4 text-green-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">{stats?.negativeTests || 0}</div>
-              <p className="text-xs text-muted-foreground">
-                {stats?.totalTests ? ((stats.negativeTests / stats.totalTests) * 100).toFixed(1) : 0}% of total
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Avg Confidence</CardTitle>
-              <BarChart3 className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">
-                {stats?.averageConfidence ? (stats.averageConfidence * 100).toFixed(1) : 0}%
-              </div>
-              <p className="text-xs text-muted-foreground">
-                Model accuracy
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Main Content Tabs */}
-        <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-4">
-          <TabsList className="grid w-full grid-cols-4">
-            <TabsTrigger value="analyze">New Analysis</TabsTrigger>
-            <TabsTrigger value="map">Map View</TabsTrigger>
-            <TabsTrigger value="history">History</TabsTrigger>
-            <TabsTrigger value="insights">Insights</TabsTrigger>
-          </TabsList>
-
-          {/* New Analysis Tab */}
-          <TabsContent value="analyze" className="space-y-4">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2">
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Blood Sample Analysis</CardTitle>
-                    <CardDescription>
-                      Upload a microscopic image of a blood smear for malaria detection
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div
-                      className="border-2 border-dashed rounded-lg p-8 text-center cursor-pointer hover:bg-muted/50 transition-colors"
-                      onDragOver={handleDragOver}
-                      onDrop={handleDrop}
-                      onClick={triggerFileInput}
-                    >
-                      <input
-                        type="file"
-                        ref={fileInputRef}
-                        className="hidden"
-                        accept="image/*"
-                        onChange={handleFileChange}
-                      />
-                      {previewUrl ? (
-                        <div className="space-y-4">
-                          <img
-                            src={previewUrl}
-                            alt="Preview"
-                            className="max-h-[400px] max-w-full mx-auto rounded-md"
-                          />
-                          <p className="text-sm text-muted-foreground">
-                            {selectedFile?.name} ({Math.round((selectedFile?.size || 0) / 1024)} KB)
-                          </p>
-                        </div>
-                      ) : (
-                        <div className="space-y-4">
-                          <Upload className="h-12 w-12 mx-auto text-muted-foreground" />
-                          <div>
-                            <p className="text-lg font-medium">Drop your image here</p>
-                            <p className="text-sm text-muted-foreground">or click to browse</p>
-                          </div>
-                          <p className="text-xs text-muted-foreground">
-                            Supports JPG, PNG, TIFF up to 10MB
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </CardContent>
-                  <CardFooter>
-                    <Button 
-                      onClick={handleAnalyze} 
-                      disabled={!selectedFile || isAnalyzing} 
-                      className="w-full"
-                      size="lg"
-                    >
-                      {isAnalyzing ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Analyzing Sample...
-                        </>
-                      ) : (
-                        <>
-                          <Microscope className="mr-2 h-4 w-4" />
-                          Analyze Blood Sample
-                        </>
-                      )}
-                    </Button>
-                  </CardFooter>
-                </Card>
-              </div>
-
-              <div className="space-y-4">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">Sample Guidelines</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-3">
-                    <div className="flex items-start space-x-2">
-                      <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium">Image Quality</p>
-                        <p className="text-xs text-muted-foreground">Clear, well-lit microscopic images</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start space-x-2">
-                      <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium">Magnification</p>
-                        <p className="text-xs text-muted-foreground">100x oil immersion preferred</p>
-                      </div>
-                    </div>
-                    <div className="flex items-start space-x-2">
-                      <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5" />
-                      <div>
-                        <p className="text-sm font-medium">Staining</p>
-                        <p className="text-xs text-muted-foreground">Giemsa or Wright stain</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-base">Recent Results</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-2">
-                    {recentAnalyses.slice(0, 3).map((analysis) => (
-                      <div key={analysis.id} className="flex items-center justify-between">
-                        <div className="flex items-center space-x-2">
-                          {getStatusIcon(analysis.status)}
-                          <span className="text-sm">
-                            {new Date(analysis.timestamp).toLocaleDateString()}
-                          </span>
-                        </div>
-                        <Badge className={getStatusColor(analysis.status)}>
-                          {analysis.status}
-                        </Badge>
-                      </div>
-                    ))}
-                    {recentAnalyses.length === 0 && (
-                      <p className="text-sm text-muted-foreground">No analyses yet</p>
-                    )}
-                  </CardContent>
-                </Card>
-              </div>
             </div>
-          </TabsContent>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl sm:text-3xl font-bold text-foreground">{stats?.positiveTests || 0}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              <span className="text-red-600">{stats?.totalTests ? ((stats.positiveTests / stats.totalTests) * 100).toFixed(1) : 0}%</span> detection rate
+            </p>
+          </CardContent>
+        </Card>
 
-          {/* Map View Tab */}
-          <TabsContent value="map" className="space-y-4">
-            <MalariaMap />
-          </TabsContent>
-
-          {/* History Tab */}
-          <TabsContent value="history" className="space-y-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <div>
-                  <CardTitle>Analysis History</CardTitle>
-                  <CardDescription>View and manage all your past analyses</CardDescription>
-                </div>
-                <Button onClick={handleExport} variant="outline" size="sm">
-                  <Download className="h-4 w-4 mr-2" />
-                  Export CSV
-                </Button>
-              </CardHeader>
-              <CardContent>
-                {recentAnalyses.length > 0 ? (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Status</TableHead>
-                        <TableHead>Parasite Type</TableHead>
-                        <TableHead>Density</TableHead>
-                        <TableHead>Confidence</TableHead>
-                        <TableHead>Actions</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {recentAnalyses.map((analysis) => (
-                        <TableRow key={analysis.id}>
-                          <TableCell>
-                            <div className="flex items-center space-x-2">
-                              <Calendar className="h-3 w-3 text-muted-foreground" />
-                              <span className="text-sm">
-                                {new Date(analysis.timestamp).toLocaleString()}
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Badge className={getStatusColor(analysis.status)}>
-                              {analysis.status}
-                            </Badge>
-                          </TableCell>
-                          <TableCell className="text-sm">
-                            {analysis.parasiteType || '-'}
-                          </TableCell>
-                          <TableCell className="text-sm">
-                            {analysis.parasiteDensity ? `${analysis.parasiteDensity}/μL` : '-'}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex items-center space-x-2">
-                              <Progress value={analysis.confidence * 100} className="w-16" />
-                              <span className="text-xs text-muted-foreground">
-                                {(analysis.confidence * 100).toFixed(0)}%
-                              </span>
-                            </div>
-                          </TableCell>
-                          <TableCell>
-                            <Button
-                              onClick={() => handleDeleteAnalysis(analysis.id)}
-                              variant="ghost"
-                              size="sm"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </TableCell>
-                        </TableRow>
-                      ))}
-                    </TableBody>
-                  </Table>
-                ) : (
-                  <div className="text-center py-8">
-                    <Microscope className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-                    <p className="text-muted-foreground">No analyses yet</p>
-                    <p className="text-sm text-muted-foreground">Upload your first blood sample to get started</p>
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          </TabsContent>
-
-          {/* Insights Tab */}
-          <TabsContent value="insights" className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Card>
-                <CardHeader>
-                  <CardTitle>Detection Summary</CardTitle>
-                  <CardDescription>Overview of your malaria detection results</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium">Positive Rate</span>
-                        <span className="text-sm text-muted-foreground">
-                          {stats?.totalTests ? ((stats.positiveTests / stats.totalTests) * 100).toFixed(1) : 0}%
-                        </span>
-                      </div>
-                      <Progress 
-                        value={stats?.totalTests ? (stats.positiveTests / stats.totalTests) * 100 : 0} 
-                        className="h-2"
-                      />
-                    </div>
-                    <div>
-                      <div className="flex items-center justify-between mb-2">
-                        <span className="text-sm font-medium">Negative Rate</span>
-                        <span className="text-sm text-muted-foreground">
-                          {stats?.totalTests ? ((stats.negativeTests / stats.totalTests) * 100).toFixed(1) : 0}%
-                        </span>
-                      </div>
-                      <Progress 
-                        value={stats?.totalTests ? (stats.negativeTests / stats.totalTests) * 100 : 0} 
-                        className="h-2 [&>div]:bg-green-600"
-                      />
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-
-              <Card>
-                <CardHeader>
-                  <CardTitle>Common Parasites</CardTitle>
-                  <CardDescription>Most frequently detected parasite types</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  {stats?.mostCommonParasite ? (
-                    <div className="space-y-3">
-                      <div className="flex items-center justify-between">
-                        <span className="text-sm font-medium">{stats.mostCommonParasite}</span>
-                        <Badge>Most Common</Badge>
-                      </div>
-                      <Alert>
-                        <AlertCircle className="h-4 w-4" />
-                        <AlertDescription>
-                          Early detection and treatment of {stats.mostCommonParasite} is crucial for patient recovery.
-                        </AlertDescription>
-                      </Alert>
-                    </div>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">No positive cases detected yet</p>
-                  )}
-                </CardContent>
-              </Card>
+        <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-border/40">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">{t.dashboard.negativeCases}</CardTitle>
+            <div className="p-2 bg-green-100 dark:bg-green-900/30 rounded-full">
+              <CheckCircle2 className="h-4 w-4 text-green-600" />
             </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl sm:text-3xl font-bold text-foreground">{stats?.negativeTests || 0}</div>
+            <p className="text-xs text-muted-foreground mt-1">
+              <span className="text-green-600">{stats?.totalTests ? ((stats.negativeTests / stats.totalTests) * 100).toFixed(1) : 0}%</span> healthy samples
+            </p>
+          </CardContent>
+        </Card>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>Activity Timeline</CardTitle>
-                <CardDescription>Your testing activity over time</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  <div className="text-center">
-                    <p className="text-2xl font-bold">{stats?.testsThisWeek || 0}</p>
-                    <p className="text-xs text-muted-foreground">This Week</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-2xl font-bold">{stats?.testsThisMonth || 0}</p>
-                    <p className="text-xs text-muted-foreground">This Month</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-2xl font-bold">{stats?.totalTests || 0}</p>
-                    <p className="text-xs text-muted-foreground">All Time</p>
-                  </div>
-                  <div className="text-center">
-                    <p className="text-2xl font-bold">
-                      {stats?.averageConfidence ? (stats.averageConfidence * 100).toFixed(0) : 0}%
-                    </p>
-                    <p className="text-xs text-muted-foreground">Avg Confidence</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-          </TabsContent>
-        </Tabs>
+        <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-border/40">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">{t.dashboard.avgConfidence}</CardTitle>
+            <div className="p-2 bg-primary/10 rounded-full">
+              <Activity className="h-4 w-4 text-primary" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl sm:text-3xl font-bold text-foreground">
+              {stats?.averageConfidence ? (stats.averageConfidence * 100).toFixed(1) : 0}%
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              <span className="text-primary">High accuracy</span> model performance
+            </p>
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Result Dialog */}
-      <Dialog open={showResultDialog} onOpenChange={setShowResultDialog}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              {currentResult?.status === 'positive' ? (
-                <>
-                  <Bug className="h-5 w-5 text-red-600" />
-                  Malaria Detected
-                </>
-              ) : currentResult?.status === 'negative' ? (
-                <>
-                  <CheckCircle2 className="h-5 w-5 text-green-600" />
-                  No Malaria Detected
-                </>
-              ) : (
-                <>
-                  <AlertCircle className="h-5 w-5 text-yellow-600" />
-                  Inconclusive Result
-                </>
+      {/* Quick Actions Grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
+        <Link href="/dashboard/analysis">
+          <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-border/40 cursor-pointer group">
+            <CardHeader className="text-center pb-4">
+              <div className="p-3 bg-primary/10 rounded-full mx-auto mb-3 group-hover:bg-primary/20 transition-colors">
+                <Microscope className="h-8 w-8 text-primary" />
+              </div>
+              <CardTitle className="text-lg text-foreground">New Analysis</CardTitle>
+              <CardDescription className="text-sm text-muted-foreground">
+                Upload and analyze blood samples
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center pt-0">
+              <Button variant="ghost" size="sm" className="group-hover:bg-primary/5">
+                Start Analysis <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/dashboard/history">
+          <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-border/40 cursor-pointer group">
+            <CardHeader className="text-center pb-4">
+              <div className="p-3 bg-blue-100 dark:bg-blue-900/30 rounded-full mx-auto mb-3 group-hover:bg-blue-200 dark:group-hover:bg-blue-900/50 transition-colors">
+                <History className="h-8 w-8 text-blue-600" />
+              </div>
+              <CardTitle className="text-lg text-foreground">View History</CardTitle>
+              <CardDescription className="text-sm text-muted-foreground">
+                Browse past analysis results
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center pt-0">
+              <Button variant="ghost" size="sm" className="group-hover:bg-blue-50 dark:group-hover:bg-blue-900/20">
+                View Records <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/dashboard/insights">
+          <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-border/40 cursor-pointer group">
+            <CardHeader className="text-center pb-4">
+              <div className="p-3 bg-green-100 dark:bg-green-900/30 rounded-full mx-auto mb-3 group-hover:bg-green-200 dark:group-hover:bg-green-900/50 transition-colors">
+                <BarChart3 className="h-8 w-8 text-green-600" />
+              </div>
+              <CardTitle className="text-lg text-foreground">Analytics</CardTitle>
+              <CardDescription className="text-sm text-muted-foreground">
+                View insights and statistics
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center pt-0">
+              <Button variant="ghost" size="sm" className="group-hover:bg-green-50 dark:group-hover:bg-green-900/20">
+                View Insights <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </CardContent>
+          </Card>
+        </Link>
+
+        <Link href="/dashboard/map">
+          <Card className="hover:shadow-lg transition-all duration-300 hover:-translate-y-1 border-border/40 cursor-pointer group">
+            <CardHeader className="text-center pb-4">
+              <div className="p-3 bg-purple-100 dark:bg-purple-900/30 rounded-full mx-auto mb-3 group-hover:bg-purple-200 dark:group-hover:bg-purple-900/50 transition-colors">
+                <MapPin className="h-8 w-8 text-purple-600" />
+              </div>
+              <CardTitle className="text-lg text-foreground">Global Map</CardTitle>
+              <CardDescription className="text-sm text-muted-foreground">
+                Malaria distribution patterns
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center pt-0">
+              <Button variant="ghost" size="sm" className="group-hover:bg-purple-50 dark:group-hover:bg-purple-900/20">
+                View Map <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </CardContent>
+          </Card>
+        </Link>
+      </div>
+
+      {/* Recent Activity */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <Card className="border-border/40">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <Clock className="h-5 w-5 text-muted-foreground" />
+                <CardTitle className="text-lg text-foreground">Recent Activity</CardTitle>
+              </div>
+              {recentAnalyses.length > 0 && (
+                <Link href="/dashboard/history">
+                  <Button variant="ghost" size="sm">
+                    View All <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
               )}
-            </DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            {currentResult && (
-              <>
-                <div className="space-y-2">
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Status:</span>
-                    <Badge className={getStatusColor(currentResult.status)}>
-                      {currentResult.status}
-                    </Badge>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {recentAnalyses.slice(0, 5).map((analysis) => (
+              <div key={analysis.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg hover:bg-muted/70 transition-colors border border-border/40">
+                <div className="flex items-center space-x-3">
+                  <div className={`p-1.5 rounded-full ${getStatusColor(analysis.status)}`}>
+                    {getStatusIcon(analysis.status)}
                   </div>
-                  {currentResult.parasiteType && (
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Parasite Type:</span>
-                      <span className="text-sm font-medium">{currentResult.parasiteType}</span>
-                    </div>
-                  )}
-                  {currentResult.parasiteDensity && (
-                    <div className="flex justify-between">
-                      <span className="text-sm text-muted-foreground">Density:</span>
-                      <span className="text-sm font-medium">{currentResult.parasiteDensity}/μL</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Confidence:</span>
-                    <span className="text-sm font-medium">{(currentResult.confidence * 100).toFixed(1)}%</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-sm text-muted-foreground">Cells Analyzed:</span>
-                    <span className="text-sm font-medium">{currentResult.cellsAnalyzed}</span>
+                  <div>
+                    <p className="text-sm font-medium text-foreground">
+                      Analysis #{analysis.id.slice(-6)}
+                    </p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(analysis.timestamp).toLocaleDateString()}
+                    </p>
                   </div>
                 </div>
-                
-                {currentResult.status === 'positive' && (
-                  <Alert className="border-red-200 bg-red-50 dark:bg-red-950/20">
-                    <AlertCircle className="h-4 w-4 text-red-600" />
-                    <AlertDescription className="text-red-800 dark:text-red-200">
-                      Immediate medical attention recommended. Consult with a healthcare provider for treatment options.
-                    </AlertDescription>
-                  </Alert>
-                )}
-              </>
+                <Badge className={`${getStatusColor(analysis.status)} text-xs`}>
+                  {analysis.status}
+                </Badge>
+              </div>
+            ))}
+            {recentAnalyses.length === 0 && (
+              <div className="text-center py-8">
+                <Upload className="h-12 w-12 mx-auto text-muted-foreground mb-2" />
+                <p className="text-sm text-muted-foreground">No analyses yet</p>
+                <p className="text-xs text-muted-foreground">Start by uploading your first sample</p>
+              </div>
             )}
-          </div>
-          <DialogFooter>
-            <Button onClick={() => setShowResultDialog(false)} className="w-full">
-              Close
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+          </CardContent>
+        </Card>
+
+        {/* Quick Stats */}
+        <Card className="border-border/40">
+          <CardHeader>
+            <div className="flex items-center space-x-2">
+              <BarChart3 className="h-5 w-5 text-muted-foreground" />
+              <CardTitle className="text-lg text-foreground">Quick Overview</CardTitle>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="text-center p-3 bg-muted/50 rounded-lg">
+                <p className="text-2xl font-bold text-foreground">{stats?.testsThisWeek || 0}</p>
+                <p className="text-xs text-muted-foreground">This Week</p>
+              </div>
+              <div className="text-center p-3 bg-muted/50 rounded-lg">
+                <p className="text-2xl font-bold text-foreground">{stats?.testsThisMonth || 0}</p>
+                <p className="text-xs text-muted-foreground">This Month</p>
+              </div>
+            </div>
+            
+            {stats?.mostCommonParasite && (
+              <div className="p-3 bg-primary/5 border border-primary/20 rounded-lg">
+                <p className="text-sm font-medium text-foreground mb-1">Most Common Parasite</p>
+                <p className="text-lg font-bold text-primary">{stats.mostCommonParasite}</p>
+              </div>
+            )}
+
+            <div className="p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/30 rounded-lg">
+              <p className="text-sm font-medium text-foreground mb-1">System Status</p>
+              <div className="flex items-center space-x-2">
+                <CheckCircle2 className="h-4 w-4 text-green-600" />
+                <p className="text-sm text-green-700 dark:text-green-400">All systems operational</p>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </>
   )
 }

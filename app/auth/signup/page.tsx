@@ -50,26 +50,26 @@ export default function SignupPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background to-muted px-4">
+    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-background via-background to-muted/30 px-4 py-8">
       <div className="w-full max-w-md">
-        <Card className="border-2">
+        <Card className="border border-border/40 shadow-lg backdrop-blur-sm bg-background/95">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">Create Account</CardTitle>
-            <CardDescription className="text-center">
+            <CardTitle className="text-2xl font-bold text-center text-foreground">Create Account</CardTitle>
+            <CardDescription className="text-center text-muted-foreground">
               Sign up to start analyzing blood samples for malaria detection
             </CardDescription>
           </CardHeader>
           <CardContent>
             <div className="space-y-4 mb-4">
-              <Alert className="border-blue-200 bg-blue-50 dark:bg-blue-950/20">
-                <Database className="h-4 w-4 text-blue-600" />
-                <AlertDescription className="text-blue-800 dark:text-blue-200">
+              <Alert className="border-primary/20 bg-primary/5 dark:bg-primary/10 dark:border-primary/30">
+                <Database className="h-4 w-4 text-primary" />
+                <AlertDescription className="text-foreground/80">
                   All data stored locally on your device. No internet required.
                 </AlertDescription>
               </Alert>
-              <Alert className="border-green-200 bg-green-50 dark:bg-green-950/20">
+              <Alert className="border-green-500/20 bg-green-500/5 dark:bg-green-500/10 dark:border-green-500/30">
                 <Shield className="h-4 w-4 text-green-600" />
-                <AlertDescription className="text-green-800 dark:text-green-200">
+                <AlertDescription className="text-foreground/80">
                   Your data never leaves your device. Complete privacy guaranteed.
                 </AlertDescription>
               </Alert>
